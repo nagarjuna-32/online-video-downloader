@@ -11,3 +11,5 @@ venv/
 __pycache__/
 .next/
 dist/
+postgres_data/
+redis.rdb

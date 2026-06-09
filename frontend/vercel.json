@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "env": {
+    "REACT_APP_API_URL": {
+      "description": "Backend API URL",
+      "value": "https://socialgrab-api.onrender.com/api"
+    }
+  }
+}

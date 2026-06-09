@@ -1,0 +1,9 @@
+.gitignore file contents for frontend
+node_modules/
+dist/
+build/
+.env
+.env.local
+.DS_Store
+*.log
+npm-debug.log*

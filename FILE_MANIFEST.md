@@ -1,4 +1,4 @@
-# SocialGrab - Complete File Manifest
+# DownloadMedia - Complete File Manifest
 
 ## Project Root
 - **README.md** - Main project documentation
@@ -6,7 +6,7 @@
 - **DEPLOYMENT.md** - Production deployment guide
 - **CONTRIBUTING.md** - Contributing guidelines
 - **PROJECT_SUMMARY.md** - Project completion summary
-- **LICENSE** - MIT License + disclaimer
+- **LICENSE** - License + disclaimer
 - **package.json** - Monorepo configuration
 - **.gitignore** - Git ignore patterns
 - **.gitattributes** - Git line ending settings
@@ -76,16 +76,14 @@
 ### Python Files
 - **main.py** - FastAPI application and routes
 - **config.py** - Configuration settings
-- **schemas.py** - Pydantic models (8 total)
-- **database.py** - SQLAlchemy database models
+- **schemas.py** - Pydantic models (7 total)
 - **yt_dlp_handler.py** - yt-dlp integration
-- **cache.py** - Redis caching utilities
 - **cleanup.py** - Temporary file cleanup
 - **security.py** - URL validation and sanitization
 - **run.py** - Entry point script
 
 ### Configuration Files
-- **requirements.txt** - Python dependencies (17 packages)
+- **requirements.txt** - Python dependencies (6 packages)
 - **.env.example** - Environment variables template
 - **.gitignore** - Backend git ignore
 - **.dockerignore** - Docker ignore patterns
@@ -104,7 +102,7 @@
 ## Scripts (/scripts)
 - **kill-ports.js** - Utility to kill processes on ports
 
-## Total File Count: 70+ files
+## Total File Count: 60+ files
 
 ## File Types Summary
 
@@ -112,16 +110,13 @@
 - 21 files (.ts, .tsx, .js, .json config files)
 
 ### Python
-- 9 files (.py)
+- 7 files (.py)
 
 ### Configuration
-- 12 files (vite, tailwind, tsconfig, docker, env, etc.)
+- 10 files (vite, tailwind, tsconfig, docker, env, etc.)
 
 ### Documentation
 - 8 files (.md)
-
-### Other
-- 20+ files (gitignore, licenses, scripts, etc.)
 
 ---
 
@@ -149,9 +144,7 @@ backend/
 ├── main.py             # Routes and app
 ├── config.py           # Configuration
 ├── schemas.py          # Data models
-├── database.py         # ORM models
 ├── yt_dlp_handler.py   # Media extraction
-├── cache.py            # Redis utilities
 ├── cleanup.py          # Cleanup tasks
 ├── security.py         # Validation
 ├── run.py              # Entry point
@@ -169,14 +162,12 @@ backend/
 - lucide-react
 - zustand
 
-### Backend (17 core packages)
+### Backend (6 core packages)
 - fastapi, uvicorn
-- sqlalchemy, psycopg2-binary
-- yt-dlp, ffmpeg-python
-- redis, aioredis
+- yt-dlp
 - pydantic
 - python-dotenv
-- And more...
+- python-multipart
 
 ---
 
@@ -201,26 +192,10 @@ backend/
 
 ---
 
-## Configuration Files (12 total)
-1. vite.config.ts
-2. tsconfig.json (x2 - main & node)
-3. tailwind.config.ts
-4. postcss.config.js
-5. vercel.json
-6. docker-compose.yml
-7. .env.example
-8. .vscode/settings.json
-9. .vscode/extensions.json
-10. .gitignore (x2 - root & subdirs)
-11. .gitattributes
-12. Various .dockerignore files
-
----
-
-**Total Lines of Code: ~5,700**
+**Total Lines of Code: ~4,600**
 - Frontend: ~2,500
-- Backend: ~800
-- Configuration: ~400
-- Documentation: ~2,000
+- Backend: ~400
+- Configuration: ~200
+- Documentation: ~1,500
 
-**Project Size: ~1.5 MB (without node_modules/venv)**
+**Project Size: ~1.0 MB (without node_modules/venv)**

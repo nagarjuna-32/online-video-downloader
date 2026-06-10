@@ -1,6 +1,6 @@
-# SocialGrab Development
+# DownloadMedia Development
 
-SocialGrab is a professional-grade web application for downloading videos from public sources.
+DownloadMedia is a professional-grade web application for downloading videos from public sources.
 
 ## Quick Start
 
@@ -35,12 +35,8 @@ python main.py
                │ HTTP/REST
 ┌──────────────▼──────────────────────┐
 │      FastAPI Backend                │
-│  yt-dlp + FFmpeg + PostgreSQL       │
-└──────────────┬──────────────────────┘
-       ┌───────┴────────┐
-       │                │
-   PostgreSQL        Redis
-  (Database)      (Caching)
+│       yt-dlp + FFmpeg               │
+└─────────────────────────────────────┘
 ```
 
 ## Feature Checklist
@@ -51,7 +47,7 @@ python main.py
 - [x] Audio extraction (MP3, M4A)
 - [x] Subtitle download (SRT, VTT)
 - [x] Platform detection
-- [x] Download history
+- [x] Download history (in-memory)
 - [x] Batch download support
 - [x] Playlist support
 
@@ -68,9 +64,7 @@ python main.py
 - [x] yt-dlp integration
 - [x] Format extraction
 - [x] Rate limiting
-- [x] Redis caching
-- [x] Database models
-- [x] Admin statistics
+- [x] Admin statistics (in-memory)
 - [x] CORS middleware
 - [x] Error logging
 
@@ -86,16 +80,12 @@ python main.py
 ### Deployment
 - [ ] Frontend: Vercel
 - [ ] Backend: Render
-- [ ] Database: Neon
-- [ ] Cache: Upstash
 
 ## Environment Setup
 
 ### Required Software
 - Node.js 16+
 - Python 3.10+
-- PostgreSQL 13+
-- Redis 6+
 - FFmpeg
 
 ### Installation (Ubuntu/Debian)
@@ -107,12 +97,6 @@ sudo apt-get install -y nodejs
 
 # Python
 sudo apt-get install -y python3 python3-venv python3-pip
-
-# PostgreSQL
-sudo apt-get install -y postgresql postgresql-contrib
-
-# Redis
-sudo apt-get install -y redis-server
 
 # FFmpeg
 sudo apt-get install -y ffmpeg
@@ -132,7 +116,6 @@ Full API documentation available at: `http://localhost:8000/docs` (Swagger UI)
 
 ## Performance Considerations
 
-- Metadata cached for 24 hours
 - Rate limit: 100 requests/hour
 - Automatic cleanup of temp files
 - Async/await for non-blocking I/O
@@ -143,21 +126,9 @@ Full API documentation available at: `http://localhost:8000/docs` (Swagger UI)
 ## Troubleshooting
 
 ### CORS Issues
-Ensure `ALLOWED_ORIGINS` in backend `.env` includes frontend URL:
+Ensure `ALLOW_ORIGINS` in backend `.env` includes frontend URL:
 ```
-ALLOWED_ORIGINS=http://localhost:3000,https://yourdomain.com
-```
-
-### Database Connection
-Check PostgreSQL is running:
-```bash
-sudo service postgresql status
-```
-
-### Redis Connection
-Check Redis is running:
-```bash
-redis-cli ping
+ALLOW_ORIGINS=http://localhost:3000,https://downloadmedia.site
 ```
 
 ### yt-dlp Issues
@@ -170,17 +141,15 @@ pip install --upgrade yt-dlp
 
 ### Environment Variables
 Set these in production environment:
-- `DATABASE_URL` - Production PostgreSQL
-- `REDIS_URL` - Production Redis
 - `SECRET_KEY` - Secure random string
-- `GOOGLE_ANALYTICS_ID` - GA tracking ID
-- `GOOGLE_ADSENSE_CLIENT` - AdSense ID
+- `TEMP_DOWNLOAD_DIR` - Set to `./temp_downloads`
+- `ALLOW_ORIGINS` - Frontend URLs (comma-separated)
+- `ENVIRONMENT` - Set to `production`
 
 ### Security Checklist
 - [ ] Enable HTTPS
 - [ ] Set strong SECRET_KEY
-- [ ] Configure ALLOWED_ORIGINS
-- [ ] Enable database backups
+- [ ] Configure ALLOW_ORIGINS
 - [ ] Monitor rate limits
 - [ ] Set up error logging
 - [ ] Enable CORS only for allowed domains
@@ -198,9 +167,9 @@ Follow these guidelines:
 
 For questions and issues, refer to:
 - [Frontend Documentation](./frontend/README.md)
-- [Backend Documentation](./backend/README.md)
-- [GitHub Issues](https://github.com/yourusername/socialgrab/issues)
+- [Backend/API Documentation](./backend/README.md)
+- [GitHub Issues](https://github.com/nagarjuna-32/online-video-downloader/issues)
 
 ---
 
-Last Updated: 2024
+Last Updated: 2026

@@ -7,30 +7,67 @@ import uuid
 import os
 import logging
 from datetime import datetime
-from sqlalchemy.orm import Session
+from collections import deque
+import threading
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("socialgrab.api")
 
-from config import ALLOWED_ORIGINS, RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW
-from schemas import AnalysisRequest, MetadataResponse, DownloadRequest, AdminStats
-from database import get_db, DownloadHistory, AnalysisCache, APIUsage, engine, Base
+from config import ALLOWED_ORIGINS, RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW, ENVIRONMENT
+from schemas import AnalysisRequest, MetadataResponse, DownloadRequest, AdminStats, DownloadHistoryItem
 from yt_dlp_handler import get_video_metadata, download_video
-from cache import get_redis, get_from_cache, set_in_cache, close_redis
 
-# Initialize database
-Base.metadata.create_all(bind=engine)
+# Thread-safe In-memory storage for runtime history & stats
+class MemoryStorage:
+    def __init__(self, max_history=100):
+        self.history = deque(maxlen=max_history)
+        self.stats = {
+            "total_analyses": 0,
+            "total_downloads": 0,
+            "error_count": 0,
+            "platform_usage": {},
+            "popular_formats": {}
+        }
+        self.lock = threading.Lock()
+
+    def add_analysis(self, platform: str, success: bool, error_message: str = None):
+        with self.lock:
+            self.stats["total_analyses"] += 1
+            if success:
+                if platform:
+                    self.stats["platform_usage"][platform] = self.stats["platform_usage"].get(platform, 0) + 1
+            else:
+                self.stats["error_count"] += 1
+
+    def add_download(self, item: dict):
+        with self.lock:
+            self.history.appendleft(item)
+            self.stats["total_downloads"] += 1
+            fmt = item.get("format")
+            if fmt:
+                self.stats["popular_formats"][fmt] = self.stats["popular_formats"].get(fmt, 0) + 1
+
+    def get_history(self):
+        with self.lock:
+            return list(self.history)
+
+    def clear_history(self):
+        with self.lock:
+            self.history.clear()
+
+    def get_stats(self):
+        with self.lock:
+            return dict(self.stats)
+
+memory_storage = MemoryStorage()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     yield
-    # Shutdown
-    await close_redis()
 
 app = FastAPI(
-    title='SocialGrab API',
+    title='DownloadMedia API',
     version='1.0.0',
     description='Video download and metadata extraction API',
     lifespan=lifespan
@@ -39,7 +76,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS if ENVIRONMENT == "production" else ["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -66,10 +103,7 @@ def check_rate_limit(client_id: str) -> bool:
     return True
 
 @app.post('/analyze', response_model=MetadataResponse)
-async def analyze_url(
-    request: AnalysisRequest,
-    db: Session = Depends(get_db)
-):
+async def analyze_url(request: AnalysisRequest):
     """Analyze video URL and extract metadata"""
     
     logger.info(f"Incoming URL to analyze: {request.url}")
@@ -89,45 +123,19 @@ async def analyze_url(
         raise HTTPException(status_code=429, detail='Rate limit exceeded')
     
     try:
-        # Check cache first
-        cache_key = f'metadata:{hashlib.md5(request.url.encode()).hexdigest()}'
-        cached = await get_from_cache(cache_key)
-        
-        if cached:
-            logger.info("Metadata fetched from cache")
-            return MetadataResponse(**cached)
-        
-        # Extract metadata
+        # Extract metadata directly (no cache)
         metadata = await get_video_metadata(request.url)
         
-        # Cache result
-        await set_in_cache(cache_key, metadata.dict(), ttl=86400)  # 24 hours
-        
-        # Log usage
-        usage = APIUsage(
-            id=str(uuid.uuid4()),
-            endpoint='/analyze',
-            platform=metadata.platform,
-            status='success'
-        )
-        db.add(usage)
-        db.commit()
+        # Log usage in memory storage
+        memory_storage.add_analysis(platform=metadata.platform, success=True)
         
         logger.info(f"Successfully analyzed URL: {request.url} - Platform: {metadata.platform}")
         return metadata
         
     except Exception as e:
         logger.error(f"Error during metadata extraction for URL {request.url}: {e}")
-        # Log error in DB
-        usage = APIUsage(
-            id=str(uuid.uuid4()),
-            endpoint='/analyze',
-            status='error',
-            error_message=str(e)
-        )
-        db.add(usage)
-        db.commit()
-        
+        # Log error in memory storage
+        memory_storage.add_analysis(platform=None, success=False, error_message=str(e))
         raise HTTPException(status_code=400, detail=str(e))
 
 def remove_file(path: str):
@@ -140,8 +148,7 @@ def remove_file(path: str):
 @app.post('/download')
 async def download(
     request: DownloadRequest,
-    background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db)
+    background_tasks: BackgroundTasks
 ):
     """Download video/audio/subtitle"""
     
@@ -149,7 +156,7 @@ async def download(
         raise HTTPException(status_code=429, detail='Rate limit exceeded')
     
     try:
-        # Get metadata first
+        # Get metadata
         metadata = await get_video_metadata(request.url)
         
         # Download file
@@ -158,19 +165,16 @@ async def download(
         # Get actual file size
         file_size = os.path.getsize(file_path) if os.path.exists(file_path) else None
         
-        # Log download
-        history = DownloadHistory(
-            id=str(uuid.uuid4()),
-            url=request.url,
-            title=metadata.title,
-            platform=metadata.platform,
-            format=request.format_id,
-            format_id=request.format_id,
-            download_type=request.type,
-            file_size=file_size
-        )
-        db.add(history)
-        db.commit()
+        # Log download in memory
+        download_item = {
+            "id": str(uuid.uuid4()),
+            "title": metadata.title,
+            "platform": metadata.platform,
+            "format": request.format_id,
+            "downloaded_at": datetime.utcnow(),
+            "file_size": file_size
+        }
+        memory_storage.add_download(download_item)
         
         # Register background task to clean up the file after response completes
         background_tasks.add_task(remove_file, file_path)
@@ -186,49 +190,24 @@ async def download(
         )
         
     except Exception as e:
+        logger.error(f"Error during download for URL {request.url}: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.get('/history')
-async def get_history(db: Session = Depends(get_db)):
+async def get_history():
     """Get download history"""
-    history = db.query(DownloadHistory).order_by(DownloadHistory.downloaded_at.desc()).limit(50).all()
-    return history
+    return memory_storage.get_history()
 
 @app.delete('/history')
-async def clear_history(db: Session = Depends(get_db)):
+async def clear_history():
     """Clear download history"""
-    db.query(DownloadHistory).delete()
-    db.commit()
+    memory_storage.clear_history()
     return {'message': 'History cleared'}
 
 @app.get('/admin/stats', response_model=AdminStats)
-async def get_stats(db: Session = Depends(get_db)):
+async def get_stats():
     """Get admin statistics"""
-    
-    total_analyses = db.query(APIUsage).filter(APIUsage.endpoint == '/analyze').count()
-    total_downloads = db.query(DownloadHistory).count()
-    error_count = db.query(APIUsage).filter(APIUsage.status == 'error').count()
-    
-    # Platform usage
-    platform_usage = {}
-    platforms = db.query(APIUsage.platform).filter(APIUsage.status == 'success').all()
-    for (platform,) in platforms:
-        if platform:
-            platform_usage[platform] = platform_usage.get(platform, 0) + 1
-    
-    # Popular formats
-    popular_formats = {}
-    formats = db.query(DownloadHistory.format).all()
-    for (fmt,) in formats:
-        popular_formats[fmt] = popular_formats.get(fmt, 0) + 1
-    
-    return AdminStats(
-        total_analyses=total_analyses,
-        total_downloads=total_downloads,
-        platform_usage=platform_usage,
-        popular_formats=popular_formats,
-        error_count=error_count
-    )
+    return memory_storage.get_stats()
 
 @app.get('/health')
 async def health_check():

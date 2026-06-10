@@ -1,4 +1,4 @@
-# SocialGrab - Download Smarter. Faster. Simpler.
+# DownloadMedia - Download Smarter. Faster. Simpler.
 
 A modern web application for analyzing and downloading publicly accessible videos from popular platforms.
 
@@ -18,15 +18,11 @@ A modern web application for analyzing and downloading publicly accessible video
 - FastAPI (Web framework)
 - Python 3.10+
 - yt-dlp (Media extraction)
-- PostgreSQL (Database)
-- Redis (Caching)
 - FFmpeg (Media processing)
 
 ### Deployment
 - Frontend: Vercel
 - Backend: Render
-- Database: Neon (PostgreSQL)
-- Cache: Upstash (Redis)
 
 ## Supported Platforms
 - YouTube
@@ -44,19 +40,17 @@ A modern web application for analyzing and downloading publicly accessible video
 ✅ **Subtitle Download** - SRT and VTT formats
 ✅ **Batch Processing** - Download multiple videos
 ✅ **Playlist Support** - Download entire playlists
-✅ **Download History** - Track your downloads
+✅ **Download History** - Track your downloads (in-memory, per-session)
 ✅ **Dark Mode** - Light and dark themes
 ✅ **Mobile Responsive** - Works on all devices
 ✅ **Rate Limiting** - Prevent abuse
-✅ **Caching** - Fast metadata retrieval
+✅ **No Database Needed** - Fast, configuration-free execution
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 16+ (for frontend)
 - Python 3.10+ (for backend)
-- PostgreSQL 13+ (for database)
-- Redis 6+ (for caching)
 - FFmpeg (for media processing)
 
 ### Frontend Setup
@@ -94,7 +88,7 @@ The backend will be available at `http://localhost:8000`
 ## Project Structure
 
 ```
-socialgrab/
+downloadmedia/
 ├── frontend/                 # React TypeScript frontend
 │   ├── src/
 │   │   ├── components/       # React components
@@ -111,9 +105,7 @@ socialgrab/
 │   ├── main.py              # Application entry point
 │   ├── config.py            # Configuration
 │   ├── schemas.py           # Pydantic schemas
-│   ├── database.py          # Database models & setup
 │   ├── yt_dlp_handler.py    # yt-dlp integration
-│   ├── cache.py             # Redis caching
 │   ├── requirements.txt     # Python dependencies
 │   └── .env.example         # Environment variables template
 │
@@ -164,7 +156,7 @@ Get download history.
 Clear download history.
 
 ### GET /admin/stats
-Get admin statistics (requires authentication in production).
+Get admin statistics.
 
 ### GET /health
 Health check endpoint.
@@ -176,12 +168,10 @@ Health check endpoint.
 Create a `.env` file in the backend directory:
 
 ```
-DATABASE_URL=postgresql://user:password@localhost/socialgrab
-REDIS_URL=redis://localhost:6379
-SECRET_KEY=your-secret-key
-GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
-GOOGLE_ADSENSE_CLIENT=ca-pub-xxxxxxxxxxxxxxxxxx
-ALLOWED_ORIGINS=http://localhost:3000,https://socialgrab.vercel.app
+SECRET_KEY=generate_a_long_random_secret
+TEMP_DOWNLOAD_DIR=./temp_downloads
+ALLOW_ORIGINS=https://downloadmedia.site,https://www.downloadmedia.site
+ENVIRONMENT=production
 ```
 
 ## Security
@@ -212,14 +202,6 @@ git push
 # Connect repository to Render and deploy
 ```
 
-### Database (Neon)
-
-Connect your Neon PostgreSQL database URL to the backend environment variables.
-
-### Cache (Upstash)
-
-Connect your Upstash Redis URL to the backend environment variables.
-
 ## Monetization
 
 - Google AdSense integration for display ads
@@ -234,7 +216,7 @@ Connect your Upstash Redis URL to the backend environment variables.
 - Lazy loading of components
 - Code splitting in Vite
 - Image optimization
-- Redis caching (24-hour TTL for metadata)
+- In-memory stats for rapid response
 - Background cleanup tasks
 - Async/await for non-blocking operations
 
@@ -256,4 +238,4 @@ For issues and questions, please open an issue on GitHub.
 
 ---
 
-Made with ❤️ by SocialGrab Team
+Made with ❤️ by DownloadMedia Team

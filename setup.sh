@@ -28,19 +28,6 @@ if ! command -v python3 &> /dev/null; then
 fi
 echo "✅ Python $(python3 --version)"
 
-# Check PostgreSQL
-if ! command -v psql &> /dev/null; then
-  echo "⚠️  PostgreSQL not found. Please install PostgreSQL 13+"
-else
-  echo "✅ PostgreSQL found"
-fi
-
-# Check Redis
-if ! command -v redis-cli &> /dev/null; then
-  echo "⚠️  Redis not found. Please install Redis 6+"
-else
-  echo "✅ Redis found"
-fi
 
 # Check FFmpeg
 if ! command -v ffmpeg &> /dev/null; then

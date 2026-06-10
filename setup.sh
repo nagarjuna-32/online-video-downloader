@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Development setup script for SocialGrab
+# Development setup script for DownloadMedia
 
-echo "🚀 Setting up SocialGrab..."
+echo "🚀 Setting up DownloadMedia..."
 
 # Create .env files if they don't exist
 if [ ! -f backend/.env ]; then

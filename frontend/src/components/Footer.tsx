@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
       <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
         {/* About */}
         <div>
-          <h3 className="font-bold text-lg mb-3">SocialGrab</h3>
+          <h3 className="font-bold text-lg mb-3">DownloadMedia</h3>
           <p className="text-sm opacity-80">Download Smarter. Faster. Simpler.</p>
         </div>
 
@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
 
       {/* Bottom */}
       <div className="border-t border-gray-800 pt-6 text-center text-sm opacity-70">
-        <p>&copy; {currentYear} SocialGrab. All rights reserved.</p>
+        <p>&copy; {currentYear} DownloadMedia. All rights reserved.</p>
       </div>
     </motion.footer>
   )

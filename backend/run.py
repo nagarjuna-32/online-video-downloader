@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SocialGrab Backend - Entry Point
+DownloadMedia Backend - Entry Point
 """
 import uvicorn
 import logging

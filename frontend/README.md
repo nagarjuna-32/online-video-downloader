@@ -1,4 +1,4 @@
-# SocialGrab Frontend
+# DownloadMedia Frontend
 
 A modern React TypeScript frontend for downloading videos from public sources.
 
@@ -125,8 +125,8 @@ vercel
 
 ### Docker
 ```bash
-docker build -t socialgrab-frontend .
-docker run -p 3000:3000 socialgrab-frontend
+docker build -t downloadmedia-frontend .
+docker run -p 3000:3000 downloadmedia-frontend
 ```
 
 ## Browser Support
@@ -167,4 +167,4 @@ Educational and personal use only.
 
 ---
 
-Made with ❤️ by SocialGrab Team
+Made with ❤️ by DownloadMedia Team

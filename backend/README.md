@@ -1,4 +1,4 @@
-# SocialGrab Backend
+# DownloadMedia Backend
 
 A FastAPI backend for extracting metadata and downloading videos from public sources using yt-dlp.
 
@@ -6,8 +6,6 @@ A FastAPI backend for extracting metadata and downloading videos from public sou
 - FastAPI
 - Python 3.10+
 - yt-dlp
-- PostgreSQL
-- Redis
 - FFmpeg
 - Pydantic
 
@@ -50,9 +48,7 @@ backend/
 ├── main.py              # FastAPI application and routes
 ├── config.py            # Configuration and settings
 ├── schemas.py           # Pydantic models for request/response
-├── database.py          # SQLAlchemy database models
 ├── yt_dlp_handler.py   # yt-dlp integration and extraction logic
-├── cache.py             # Redis caching utilities
 ├── requirements.txt     # Python dependencies
 └── .env.example         # Environment template
 ```
@@ -157,56 +153,10 @@ Health check endpoint.
 ### Environment Variables
 
 ```
-# Database
-DATABASE_URL=postgresql://user:password@localhost/socialgrab
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# API
-SECRET_KEY=your-secret-key-change-in-production
-
-# Services
-GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
-GOOGLE_ADSENSE_CLIENT=ca-pub-xxxxxxxxxxxxxxxxxx
-
-# CORS
-ALLOWED_ORIGINS=http://localhost:3000,https://socialgrab.vercel.app
-
-# Storage
-TEMP_DOWNLOAD_DIR=/tmp/socialgrab
-```
-
-## Database Setup
-
-### PostgreSQL
-
-```bash
-# Create database
-createdb socialgrab
-
-# Initialize tables
-python -c "from database import Base, engine; Base.metadata.create_all(bind=engine)"
-```
-
-### Migrations with Alembic
-
-```bash
-# Create migration
-alembic revision --autogenerate -m "Description"
-
-# Apply migration
-alembic upgrade head
-```
-
-## Redis Setup
-
-```bash
-# Start Redis
-redis-server
-
-# Or with Docker
-docker run -d -p 6379:6379 redis:7-alpine
+SECRET_KEY=generate_a_long_random_secret
+TEMP_DOWNLOAD_DIR=./temp_downloads
+ALLOW_ORIGINS=https://downloadmedia.site,https://www.downloadmedia.site
+ENVIRONMENT=production
 ```
 
 ## Security Features
@@ -222,9 +172,8 @@ docker run -d -p 6379:6379 redis:7-alpine
 
 ## Performance Optimizations
 
-- Metadata caching (24-hour TTL)
+- In-memory stats for rapid response
 - Async/await for non-blocking I/O
-- Connection pooling
 - Background cleanup tasks
 - Lazy loading of formats
 
@@ -269,8 +218,8 @@ logger = logging.getLogger(__name__)
 ### Docker
 
 ```bash
-docker build -t socialgrab-backend .
-docker run -p 8000:8000 socialgrab-backend
+docker build -t downloadmedia-backend .
+docker run -p 8000:8000 downloadmedia-backend
 ```
 
 ### Docker Compose
@@ -279,29 +228,10 @@ docker run -p 8000:8000 socialgrab-backend
 docker-compose up -d
 ```
 
-## Testing
-
-```bash
-# Run tests
-pytest
-
-# With coverage
-pytest --cov=.
-```
-
 ## Troubleshooting
 
-### Database Connection Error
-```
-Check DATABASE_URL format and PostgreSQL is running
-```
-
-### Redis Connection Error
-```
-Check REDIS_URL and Redis server is running
-```
-
-### yt-dlp Not Found
+### yt-dlp Issues
+Update yt-dlp:
 ```bash
 pip install --upgrade yt-dlp
 ```
@@ -322,12 +252,11 @@ choco install ffmpeg
 
 1. Create feature branch
 2. Follow PEP 8 style guide
-3. Write tests for new features
-4. Submit pull request
+3. Submit pull request
 
 ## License
 Educational and personal use only.
 
 ---
 
-Made with ❤️ by SocialGrab Team
+Made with ❤️ by DownloadMedia Team

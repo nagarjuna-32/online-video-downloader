@@ -1,4 +1,4 @@
-# Contributing to SocialGrab
+# Contributing to DownloadMedia
 
 We welcome contributions! This document provides guidelines for contributing to the project.
 
@@ -14,8 +14,8 @@ We welcome contributions! This document provides guidelines for contributing to 
 ### 1. Fork the Repository
 
 ```bash
-git clone https://github.com/yourusername/socialgrab.git
-cd socialgrab
+git clone https://github.com/yourusername/downloadmedia.git
+cd downloadmedia
 ```
 
 ### 2. Create a Feature Branch
@@ -214,8 +214,8 @@ feat: add download history pagination
 ### Clone and Setup
 
 ```bash
-git clone https://github.com/yourusername/socialgrab.git
-cd socialgrab
+git clone https://github.com/yourusername/downloadmedia.git
+cd downloadmedia
 
 # Frontend
 cd frontend
@@ -306,4 +306,4 @@ Thank you for contributing! 🎉
 
 ---
 
-Made with ❤️ by the SocialGrab Community
+Made with ❤️ by the DownloadMedia Community

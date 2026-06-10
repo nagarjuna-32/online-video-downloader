@@ -1,13 +1,12 @@
-# SocialGrab Development Instructions
+# DownloadMedia Development Instructions
 
 ## Project Overview
-SocialGrab is a professional production-ready web application for analyzing and downloading publicly accessible video media from platforms like YouTube, Instagram, TikTok, Facebook, and more.
+DownloadMedia is a professional production-ready web application for analyzing and downloading publicly accessible video media from platforms like YouTube, Instagram, TikTok, Facebook, and more.
 
 **Tech Stack:**
 - Frontend: React 18 + TypeScript + Vite + Tailwind CSS + Framer Motion
 - Backend: FastAPI + Python + yt-dlp + FFmpeg
-- Database: PostgreSQL + Redis
-- Deployment: Vercel (Frontend) + Render (Backend) + Neon (DB) + Upstash (Cache)
+- Deployment: Vercel (Frontend) + Render (Backend)
 
 ## Development Guidelines
 
@@ -24,8 +23,8 @@ SocialGrab is a professional production-ready web application for analyzing and 
 - Use FastAPI async endpoints for performance
 - Pydantic models for strict request/response validation
 - Rate limiting (100 requests/hour) for abuse prevention
-- Redis caching for metadata (24-hour TTL)
 - yt-dlp integration for media extraction
+- In-memory stats and history (thread-safe MemoryStorage)
 - Automatic cleanup of temporary files
 - Comprehensive error logging and monitoring
 - CORS protection with configurable origins
@@ -33,7 +32,7 @@ SocialGrab is a professional production-ready web application for analyzing and 
 ## Project Structure
 
 ```
-socialgrab/
+downloadmedia/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/      # Reusable React components
@@ -51,9 +50,7 @@ socialgrab/
 │   ├── main.py             # FastAPI application
 │   ├── config.py           # Configuration settings
 │   ├── schemas.py          # Pydantic models
-│   ├── database.py         # SQLAlchemy models
 │   ├── yt_dlp_handler.py   # yt-dlp integration
-│   ├── cache.py            # Redis utilities
 │   ├── requirements.txt
 │   ├── Dockerfile
 │   └── .env.example
@@ -74,7 +71,7 @@ socialgrab/
 ✅ Audio extraction (MP3, M4A)
 ✅ Subtitle download (SRT, VTT)
 ✅ Platform detection (YouTube, Instagram, TikTok, etc.)
-✅ Download history tracking
+✅ Download history tracking (in-memory)
 ✅ Batch download support
 ✅ Playlist support
 
@@ -90,8 +87,7 @@ socialgrab/
 ### Backend
 ✅ yt-dlp integration for format extraction
 ✅ Rate limiting and abuse prevention
-✅ Redis caching for performance
-✅ PostgreSQL database models
+✅ In-memory stats and history storage
 ✅ Admin statistics endpoint
 ✅ CORS middleware configuration
 ✅ Error logging and monitoring
@@ -105,7 +101,7 @@ socialgrab/
 ✅ Login-required content rejection
 ✅ Temporary file cleanup
 ✅ CORS protection
-✅ Environment variable configuration
+│   └── Environment variable configuration
 
 ## Setup Instructions
 
@@ -156,21 +152,17 @@ See backend README for detailed API documentation.
 See DEPLOYMENT.md for detailed instructions:
 1. Frontend: Vercel
 2. Backend: Render
-3. Database: Neon PostgreSQL
-4. Cache: Upstash Redis
 
 ### Environment Variables
 Set in production:
-- `DATABASE_URL` - PostgreSQL connection
-- `REDIS_URL` - Redis connection
 - `SECRET_KEY` - Random 32+ character string
-- `GOOGLE_ANALYTICS_ID` - GA tracking
-- `GOOGLE_ADSENSE_CLIENT` - AdSense ID
-- `ALLOWED_ORIGINS` - Frontend URLs
+- `TEMP_DOWNLOAD_DIR` - Set to `./temp_downloads`
+- `ALLOW_ORIGINS` - Frontend URLs
+- `ENVIRONMENT` - Set to `production`
 
 ## Performance Considerations
 
-- Metadata cached 24 hours in Redis
+- In-memory stats for rapid response
 - Rate limit: 100 requests/hour
 - Async/await for non-blocking I/O
 - Lazy loading and code splitting
@@ -181,17 +173,15 @@ Set in production:
 
 ```bash
 # Frontend
-cd frontend && npm test
+cd frontend && npm run build
 
 # Backend
-cd backend && pytest
+cd backend && python main.py
 ```
 
 ## Troubleshooting
 
-**CORS Issues**: Update ALLOWED_ORIGINS in backend .env
-**Database Connection**: Verify DATABASE_URL and PostgreSQL running
-**Redis Issues**: Verify REDIS_URL and Redis running
+**CORS Issues**: Update ALLOW_ORIGINS in backend .env
 **yt-dlp Errors**: Update with `pip install --upgrade yt-dlp`
 
 ## Contributing
@@ -210,4 +200,3 @@ Follow CONTRIBUTING.md for:
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
 - [Frontend README](./frontend/README.md) - Frontend specifics
 - [Backend README](./backend/README.md) - Backend specifics
-

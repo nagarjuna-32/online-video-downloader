@@ -1,11 +1,18 @@
 import axios from 'axios'
-import type { AnalysisRequest, MetadataResponse, DownloadRequest, BatchDownloadRequest, DownloadHistoryItem } from '../types'
+import type {
+  AnalysisRequest,
+  MetadataResponse,
+  DownloadRequest,
+  BatchDownloadRequest,
+  DownloadHistoryItem
+} from '../types'
 
-const API_BASE_URL = '/api'
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || 'https://online-video-download.onrender.com'
 
 const client = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 60000,
 })
 
 export const api = {
@@ -17,6 +24,7 @@ export const api = {
   download: async (request: DownloadRequest): Promise<Blob> => {
     const response = await client.post('/download', request, {
       responseType: 'blob',
+      timeout: 300000,
     })
     return response.data
   },

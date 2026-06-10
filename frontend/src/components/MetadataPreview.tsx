@@ -16,6 +16,11 @@ const MetadataPreview: React.FC<MetadataPreviewProps> = ({ metadata, url, onDown
   const [downloadType, setDownloadType] = useState<'video' | 'audio' | 'subtitle'>('video')
   const [downloading, setDownloading] = useState(false)
 
+  const handleTypeChange = (type: 'video' | 'audio' | 'subtitle') => {
+    setDownloadType(type)
+    setSelectedFormat(null)
+  }
+
   const handleDownload = async () => {
     if (!selectedFormat) return
 
@@ -27,7 +32,10 @@ const MetadataPreview: React.FC<MetadataPreviewProps> = ({ metadata, url, onDown
         type: downloadType,
       })
 
-      const filename = `${metadata.title}-${selectedFormat}.${selectedFormat.split('.').pop()}`
+      const ext = downloadType === 'video' ? 'mp4' : downloadType === 'audio' ? 'mp3' : 'vtt'
+      const cleanTitle = metadata.title.replace(/[\\/*?:"<>|]/g, '').trim() || 'download'
+      const filename = `${cleanTitle}.${ext}`
+
       downloadFile(blob, filename)
       onDownloadComplete?.()
     } catch (error) {
@@ -37,7 +45,18 @@ const MetadataPreview: React.FC<MetadataPreviewProps> = ({ metadata, url, onDown
     }
   }
 
-  const formats = downloadType === 'audio' ? (metadata.audio_formats || []) : metadata.formats
+  const formats = downloadType === 'audio' 
+    ? (metadata.audio_formats || []) 
+    : downloadType === 'subtitle'
+    ? (metadata.subtitles || []).map(sub => ({
+        format_id: sub.language,
+        format_name: sub.language,
+        ext: sub.ext,
+        resolution: undefined,
+        filesize: undefined,
+        bitrate: undefined
+      }))
+    : metadata.formats
 
   return (
     <motion.div
@@ -76,7 +95,7 @@ const MetadataPreview: React.FC<MetadataPreviewProps> = ({ metadata, url, onDown
         {/* Download Type Selector */}
         <div className="flex gap-2">
           <button
-            onClick={() => setDownloadType('video')}
+            onClick={() => handleTypeChange('video')}
             className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-colors ${
               downloadType === 'video'
                 ? 'bg-primary text-white'
@@ -87,7 +106,7 @@ const MetadataPreview: React.FC<MetadataPreviewProps> = ({ metadata, url, onDown
             Video
           </button>
           <button
-            onClick={() => setDownloadType('audio')}
+            onClick={() => handleTypeChange('audio')}
             className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-colors ${
               downloadType === 'audio'
                 ? 'bg-primary text-white'
@@ -99,7 +118,7 @@ const MetadataPreview: React.FC<MetadataPreviewProps> = ({ metadata, url, onDown
           </button>
           {metadata.subtitles.length > 0 && (
             <button
-              onClick={() => setDownloadType('subtitle')}
+              onClick={() => handleTypeChange('subtitle')}
               className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-colors ${
                 downloadType === 'subtitle'
                   ? 'bg-primary text-white'
@@ -116,26 +135,29 @@ const MetadataPreview: React.FC<MetadataPreviewProps> = ({ metadata, url, onDown
         <div className="space-y-2">
           <label className="block font-semibold text-sm">Select Format:</label>
           <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-            {formats.map((format) => (
-              <motion.button
-                key={format.format_id}
-                whileHover={{ scale: 1.02 }}
-                onClick={() => setSelectedFormat(format.format_id)}
-                className={`p-3 rounded-lg text-left border-2 transition-all ${
-                  selectedFormat === format.format_id
-                    ? 'border-primary bg-primary/10'
-                    : 'border-gray-300 dark:border-gray-600'
-                }`}
-              >
-                <p className="font-semibold">{format.format_name}</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {format.filesize ? formatFileSize(format.filesize) : 'Size unknown'}
-                </p>
-                {format.bitrate && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400">{format.bitrate}</p>
-                )}
-              </motion.button>
-            ))}
+            {formats.map((format) => {
+              const sizeStr = format.filesize ? ` – ${formatFileSize(format.filesize)}` : '';
+              const displayTitle = downloadType === 'video'
+                ? `${format.resolution || 'Video'} MP4${sizeStr}`
+                : downloadType === 'audio'
+                ? `MP3 ${format.bitrate || '192 kbps'}${sizeStr}`
+                : `${format.format_name || 'Subtitle'}`;
+
+              return (
+                <motion.button
+                  key={format.format_id}
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => setSelectedFormat(format.format_id)}
+                  className={`p-3 rounded-lg text-left border-2 transition-all ${
+                    selectedFormat === format.format_id
+                      ? 'border-primary bg-primary/10'
+                      : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                >
+                  <p className="font-semibold text-sm">{displayTitle}</p>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
 

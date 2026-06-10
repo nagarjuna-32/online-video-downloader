@@ -105,7 +105,7 @@ async def download_video(url: str, format_id: str, download_type: str) -> str:
     loop = asyncio.get_event_loop()
     
     ydl_opts = {
-        'format': format_id,
+        'format': f"{format_id}+bestaudio/best" if download_type == 'video' else 'bestaudio/best',
         'quiet': True,
         'no_warnings': True,
         'socket_timeout': 30,
@@ -113,7 +113,9 @@ async def download_video(url: str, format_id: str, download_type: str) -> str:
         'ffmpeg_location': '/home/arjun/bin',
     }
     
-    if download_type == 'audio':
+    if download_type == 'video':
+        ydl_opts['merge_output_format'] = 'mp4'
+    elif download_type == 'audio':
         ydl_opts['postprocessors'] = [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
@@ -127,6 +129,9 @@ async def download_video(url: str, format_id: str, download_type: str) -> str:
             if download_type == 'audio':
                 base, _ = os.path.splitext(filename)
                 filename = f"{base}.mp3"
+            elif download_type == 'video':
+                base, _ = os.path.splitext(filename)
+                filename = f"{base}.mp4"
             return filename
     
     return await loop.run_in_executor(None, download)

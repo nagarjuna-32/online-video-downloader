@@ -225,10 +225,14 @@ async def download(
             )
 
         file_size = os.path.getsize(file_path)
-        _, ext = os.path.splitext(file_path)
-
         title = safe_filename(getattr(metadata, "title", "downloadmedia-file"))
-        download_filename = f"{title}{ext}"
+        if request.type == "video":
+            download_filename = f"{title}.mp4"
+        elif request.type == "audio":
+            download_filename = f"{title}.mp3"
+        else:
+            _, ext = os.path.splitext(file_path)
+            download_filename = f"{title}{ext}"
 
         memory_storage.add_download({
             "id": str(uuid.uuid4()),
@@ -255,7 +259,7 @@ async def download(
         logger.error(f"Download failed for {url}: {e}")
         raise HTTPException(
             status_code=400,
-            detail=f"Download failed. Error: {str(e)}"
+            detail="The selected media could not be converted into a standard format. Please try another quality option."
         )
 
 

@@ -18,7 +18,7 @@ class MetadataResponse(BaseModel):
     platform: str
     title: str
     thumbnail: str
-    duration: int
+    duration: float
     uploader: Optional[str] = None
     upload_date: Optional[str] = None
     formats: List[VideoFormat]

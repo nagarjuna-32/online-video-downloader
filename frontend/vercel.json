@@ -4,7 +4,7 @@
   "env": {
     "REACT_APP_API_URL": {
       "description": "Backend API URL",
-      "value": "https://socialgrab-api.onrender.com/api"
+      "value": "https://online-video-download.onrender.com"
     }
   }
 }

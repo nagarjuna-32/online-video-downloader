@@ -115,12 +115,10 @@ async def download_video(url: str, format_id: str, download_type: str) -> str:
     loop = asyncio.get_event_loop()
 
     ydl_opts = {
-        "format": f"{format_id}+bestaudio/best" if download_type == "video" else "bestaudio/best",
         "quiet": True,
         "no_warnings": True,
         "socket_timeout": 30,
         "outtmpl": os.path.join(TEMP_DOWNLOAD_DIR, "%(title)s-%(id)s.%(ext)s"),
-        "ffmpeg_location": "/home/arjun/bin",
         "user_agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 Chrome/120 Safari/537.36"
@@ -128,13 +126,19 @@ async def download_video(url: str, format_id: str, download_type: str) -> str:
     }
 
     if download_type == "video":
-        ydl_opts["merge_output_format"] = "mp4"
+        ydl_opts.update({
+            "format": "bestvideo+bestaudio/best",
+            "merge_output_format": "mp4",
+        })
     elif download_type == "audio":
-        ydl_opts["postprocessors"] = [{
-            "key": "FFmpegExtractAudio",
-            "preferredcodec": "mp3",
-            "preferredquality": "192",
-        }]
+        ydl_opts.update({
+            "format": "bestaudio/best",
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }],
+        })
 
     def download() -> str:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

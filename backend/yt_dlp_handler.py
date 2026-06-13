@@ -18,11 +18,6 @@ async def get_video_metadata(url: str) -> MetadataResponse:
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 Chrome/120 Safari/537.36"
         ),
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["android", "web"]
-            }
-        }
     }
 
     def extract_metadata():

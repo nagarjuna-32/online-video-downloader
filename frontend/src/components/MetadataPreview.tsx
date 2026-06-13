@@ -28,7 +28,7 @@ const MetadataPreview: React.FC<MetadataPreviewProps> = ({ metadata, url, onDown
     try {
       const blob = await api.download({
         url,
-        format_id: selectedFormat,
+        format_id: downloadType === 'audio' ? 'bestaudio' : 'best',
         type: downloadType,
       })
 

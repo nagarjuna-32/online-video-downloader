@@ -17,6 +17,9 @@ interface AppStore {
   
   analyticsId: string | null
   setAnalyticsId: (id: string | null) => void
+
+  currentRoute: string
+  setCurrentRoute: (route: string) => void
 }
 
 export const useAppStore = create<AppStore>((set) => ({
@@ -44,4 +47,7 @@ export const useAppStore = create<AppStore>((set) => ({
     if (id) localStorage.setItem('analyticsId', id)
     set({ analyticsId: id })
   },
+
+  currentRoute: window.location.pathname,
+  setCurrentRoute: (route) => set({ currentRoute: route }),
 }))

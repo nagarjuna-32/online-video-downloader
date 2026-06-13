@@ -2,10 +2,19 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Sun, Moon, History, Menu, X } from 'lucide-react'
 import { useAppStore } from '../stores/appStore'
+import { Link } from './Link'
+import { navigate } from '../utils/navigation'
 
 const Header: React.FC = () => {
-  const { darkMode, toggleDarkMode } = useAppStore()
+  const { darkMode, toggleDarkMode, currentRoute } = useAppStore()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const handleHomeAnchor = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+    if (currentRoute !== '/') {
+      e.preventDefault()
+      navigate('/' + hash)
+    }
+  }
 
   return (
     <motion.header
@@ -15,23 +24,49 @@ const Header: React.FC = () => {
     >
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl">
-            DM
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-primary">DownloadMedia</h1>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Download Smarter</p>
-          </div>
+          <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl">
+              DM
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-primary">DownloadMedia</h1>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Download Smarter</p>
+            </div>
+          </Link>
         </div>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-4">
-          <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">
+          <a
+            href="#features"
+            onClick={(e) => handleHomeAnchor(e, '#features')}
+            className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
+          >
             Features
           </a>
-          <a href="#faq" className="text-sm font-medium hover:text-primary transition-colors">
+          <a
+            href="#faq"
+            onClick={(e) => handleHomeAnchor(e, '#faq')}
+            className="text-sm font-medium hover:text-primary transition-colors cursor-pointer"
+          >
             FAQ
           </a>
+          <Link
+            to="/about"
+            className={`text-sm font-medium hover:text-primary transition-colors ${
+              currentRoute === '/about' ? 'text-primary' : ''
+            }`}
+          >
+            About
+          </Link>
+          <Link
+            to="/contact"
+            className={`text-sm font-medium hover:text-primary transition-colors ${
+              currentRoute === '/contact' ? 'text-primary' : ''
+            }`}
+          >
+            Contact
+          </Link>
           <button className="flex items-center gap-2 text-sm font-medium hover:text-primary">
             <History className="w-4 h-4" />
             History
@@ -44,7 +79,7 @@ const Header: React.FC = () => {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Toggle */}
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={toggleDarkMode}
@@ -68,12 +103,62 @@ const Header: React.FC = () => {
           animate={{ opacity: 1, height: 'auto' }}
           className="md:hidden border-t border-gray-200 dark:border-gray-700 p-4 space-y-2"
         >
-          <a href="#features" className="block text-sm font-medium hover:text-primary">
+          <a
+            href="#features"
+            onClick={(e) => {
+              handleHomeAnchor(e, '#features')
+              setMobileMenuOpen(false)
+            }}
+            className="block text-sm font-medium hover:text-primary"
+          >
             Features
           </a>
-          <a href="#faq" className="block text-sm font-medium hover:text-primary">
+          <a
+            href="#faq"
+            onClick={(e) => {
+              handleHomeAnchor(e, '#faq')
+              setMobileMenuOpen(false)
+            }}
+            className="block text-sm font-medium hover:text-primary"
+          >
             FAQ
           </a>
+          <Link
+            to="/about"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block text-sm font-medium hover:text-primary ${
+              currentRoute === '/about' ? 'text-primary' : ''
+            }`}
+          >
+            About
+          </Link>
+          <Link
+            to="/contact"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block text-sm font-medium hover:text-primary ${
+              currentRoute === '/contact' ? 'text-primary' : ''
+            }`}
+          >
+            Contact
+          </Link>
+          <Link
+            to="/privacy-policy"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block text-sm font-medium hover:text-primary ${
+              currentRoute === '/privacy-policy' ? 'text-primary' : ''
+            }`}
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            to="/terms-of-service"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`block text-sm font-medium hover:text-primary ${
+              currentRoute === '/terms-of-service' ? 'text-primary' : ''
+            }`}
+          >
+            Terms of Service
+          </Link>
           <button className="block w-full text-left text-sm font-medium hover:text-primary">
             History
           </button>

@@ -66,13 +66,21 @@ const MetadataPreview: React.FC<MetadataPreviewProps> = ({ metadata, url, onDown
     >
       {/* Thumbnail & Info */}
       <div className="md:col-span-1">
-        <motion.img
-          src={metadata.thumbnail}
-          alt={metadata.title}
-          className="w-full rounded-lg mb-4 shadow-md"
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-        />
+        {metadata.thumbnail ? (
+          <img
+            src={metadata.thumbnail}
+            alt={metadata.title}
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+            className="w-full rounded-lg mb-4 shadow-md"
+          />
+        ) : (
+          <div className="w-full h-48 rounded-lg mb-4 bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+            <span>Preview not available</span>
+          </div>
+        )}
         <div className="space-y-2">
           <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">
             Platform: <span className="text-primary">{metadata.platform}</span>
